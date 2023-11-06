@@ -1,0 +1,76 @@
+#! /usr/bin/env python
+
+import os,sys,logging,time
+import re
+
+def findhisto(file,index):
+
+    histo=[]
+    size=0
+
+    while True:
+
+        line=file.readline()
+
+        if line=='':
+            break
+
+        if re.search('#',line)!=None and re.search(index,line)!=None:
+
+            while True:
+                last_pos = file.tell()
+                line=file.readline().replace('D','E').rstrip('\n')
+                if re.search("#", line)!=None or not line:
+                    #f.seek(last_pos)
+                    break
+
+                if len(line)>2:
+                    histo.append(line)
+                    size += 1
+
+    #print size
+    #print histo
+    return histo, size
+
+
+if __name__ == '__main__':
+
+  ## Argument parser
+  from argparse import ArgumentParser
+
+  parser = ArgumentParser(description='Puts same histograms named INDEX from different files side by side.')
+  parser.add_argument('inputfiles', nargs='+', metavar='pwgNLO.top', help='One or more histogram files.')
+  parser.add_argument("-i", "--index", nargs=1, required=True, dest="INDEX", default="xxx", metavar='index', type=str, help="name of histogram [xxx]")
+
+  args  = parser.parse_args()
+  files = args.inputfiles
+  index = args.INDEX[0]
+
+  histos={}
+  sizes={}
+
+
+
+  for filename in files:
+
+      file=open(filename,'r')
+
+      histos[filename], sizes[filename] = findhisto(file,index)
+      #findhisto(file,index)
+
+      file.close()
+
+  if len(set(sizes.values()))!=1:
+
+      print "Histograms have different length: s", set(sizes.values())
+      sys.exit(2)
+
+  print "# ", index, " index"
+
+  for line in range(1,sizes[files[1]]):
+      for filename in files:
+          sys.stdout.write(histos[filename][line])
+          sys.stdout.flush()
+      print ''
+
+

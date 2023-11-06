@@ -1,0 +1,351 @@
+\documentclass[paper]{JHEP3}
+\usepackage{amsmath,amssymb,enumerate,url}
+\usepackage{xspace}
+\bibliographystyle{JHEP}
+
+%%%%%%%%%% Start TeXmacs macros
+\newcommand{\tmtextit}[1]{{\itshape{#1}}}
+\newcommand{\tmtexttt}[1]{{\ttfamily{#1}}}
+\newenvironment{enumeratenumeric}{\begin{enumerate}[1.] }{\end{enumerate}}
+\newcommand\sss{\mathchoice%
+{\displaystyle}%
+{\scriptstyle}%
+{\scriptscriptstyle}%
+{\scriptscriptstyle}%
+}
+
+\newcommand\as{\alpha_{\sss\rm S}}
+\newcommand\POWHEG{{\tt POWHEG}}
+\newcommand\POWHEGBOX{{\tt POWHEG-BOX}}
+\newcommand\POWHEGBOXV{{\tt POWHEG-BOX-V2}}
+\newcommand\POWHEGBOXRES{{\tt POWHEG-BOX-RES}}
+\newcommand\HERWIG{{\tt HERWIG}}
+\newcommand\PYTHIA{{\tt PYTHIA}}
+\newcommand\MCatNLO{{\tt MC@NLO}}
+\newcommand\ftapprox{FT$_{\mathrm{approx}}$\xspace}
+
+\newcommand\kt{k_{\sss\rm T}}
+\newcommand\pthh{\ensuremath{p_{T}^{\mathrm{hh}}}\xspace}
+\newcommand\pt{p_{\sss\rm T}}
+\newcommand\LambdaQCD{\Lambda_{\scriptscriptstyle QCD}}
+%%%%%%%%%% End TeXmacs macros
+
+
+\title{The POWHEG BOX V2 user manual:\\
+  Higgs boson pair production at NLO QCD with variations of the Higgs couplings} \vfill
+
+\author{G.~Heinrich\\ 
+  Max-Planck Institut f{\"u}r Physik, F\"ohringer 6, D-80805 Munich, Germany\\
+  E-mail: \email{gudrun@mpp.mpg.de}
+}
+
+\author{S.~P.~Jones \\ 
+Theoretical Physics Department, CERN, CH-1211 Geneva, Switzerland  \\
+  E-mail: \email{s.jones@cern.ch}
+}
+
+\author{M.~Kerner \\ 
+  Institut f{\"u}r Physik, Universit{\"a}t Z{\"u}rich, Winterthurerstr. 190, 8057 Z{\"u}rich, Switzerland\\
+  E-mail: \email{kerner@mpp.mpg.de}
+}
+
+\author{G.~Luisoni\\
+Max-Planck Institut f{\"u}r Physik, F\"ohringer 6, D-80805 Munich, Germany\\ 
+  E-mail: \email{luisonig@gmail.com}
+  }
+
+\author{L.~Scyboz\\
+ Max-Planck Institut f{\"u}r Physik, F\"ohringer 6, D-80805 Munich, Germany\\ 
+  E-mail: \email{scyboz@mpp.mpg.de}
+}
+\vskip -0.5truecm
+
+\keywords{Shower Monte Carlo, POWHEG, NLO, Higgs, EFT}
+
+\abstract{This note documents the use of the package \POWHEGBOXV{} for
+  Higgs boson pair production in gluon fusion. The code
+  allows to produce NLO results matched to a parton shower for $HH$
+  production with full top quark mass dependence, and also allows variations of the Higgs boson couplings.
+  Other run modes of the program can be used to calculate approximations: the $m_t\to \infty$ limit (also called HEFT approximation),  the
+  so-called Born-improved HEFT approximation, and  the \ftapprox
+  scheme.}
+
+\preprint{\today\\ {\tt POWHEG-BOX-V2}}
+
+\begin{document}
+
+
+\section{Introduction}
+
+The \POWHEGBOX{} is a framework to implement NLO
+calculations in shower Monte Carlo programs according to the \POWHEG{}
+method. An explanation of the method and a discussion of how the code
+is organized can be found in
+Refs.~\cite{Nason:2004rx,Frixione:2007vw,Alioli:2010xd,Jezo:2015aia}.
+The code is distributed according to the ``MCNET Guidelines for Event
+Generator Authors and Users'' and can be found at the web page
+%
+\begin{center}
+ \url{http://powhegbox.mib.infn.it}
+\end{center}
+%
+In this manual, we describe the \POWHEG{} implementation of Higgs
+boson pair production in gluon fusion at NLO QCD, as described in
+Ref.~\cite{Heinrich:2017kxx}, based on the calculation reported in
+Refs.~\cite{Borowka:2016ehy,Borowka:2016ypz}.  
+The variations of the Higgs boson couplings are based on Refs.~\cite{Heinrich:2019bkc,Buchalla:2018yce}.
+Please cite Refs.~\cite{Heinrich:2019bkc,Heinrich:2017kxx} if you use this program.
+
+The code can be found under {\tt User-Processes-V2} in the {\tt ggHH} process-directory. 
+An example input card ({\tt powheg.input-save}) and a run script ({\tt run.sh}) 
+are provided in the {\tt testrun} folder accompanying the code.
+
+This document describes the input parameters that are specific to the process. The
+parameters that are common to all \POWHEGBOX{} processes can be found
+in the manual {\tt V2-paper.pdf} in the \POWHEGBOXV{}/{\tt Docs} directory.
+
+\section{Running modes}
+The code contains the NLO QCD amplitudes for both, the full top quark mass dependence, 
+for which $HH$ production is a loop-induced process, and the
+$m_t\to \infty$ limit (sometimes called Higgs Effective Field Theory, HEFT), 
+containing effective Higgs-gluon couplings, as the top-quark loops are integrated out.  
+A detailed description of the different approximations can be found in Ref.~\cite{Borowka:2016ypz}.
+
+This allows to run the code in four different modes, either by
+changing the flag {\tt mtdep} in the \POWHEGBOX{} run card {\tt powheg.input-save}, or by using the script {\tt run.sh [mode]}.
+The possible choices and the corresponding calculations are the following:
+\begin{description}
+ \item[{\tt mtdep=0}:]{computation using basic HEFT. All amplitudes
+   are computed in the $m_t\to\infty$ limit.\textbf{This mode can only be run for variations of 
+   the trilinear coupling $c_{hhh}$.}}
+ \item[{\tt mtdep=1}:]{computation using Born-improved HEFT. In this
+   approximation the fixed-order part is computed at NLO in the HEFT
+   and reweighted pointwise in the phase-space by the LO matrix
+   element with full mass dependence divided by the LO matrix
+   element in HEFT. \textbf{This mode can only be run for variations of 
+   the trilinear coupling $c_{hhh}$.}}
+ \item[{\tt mtdep=2}:]{computation in the approximation \ftapprox. In
+   this approximation the matrix elements for the Born and the real
+   radiation contributions are computed with full top quark mass dependence
+   (using matrix elements generated by {\tt
+     GoSam}~\cite{Cullen:2014yla}), whereas the virtual part is
+   computed as in the Born-improved HEFT. \textbf{This mode can only be run for variations of 
+   the trilinear coupling $c_{hhh}$.}}
+ \item[{\tt mtdep=3}:]{computation with full top quark mass dependence.}
+\end{description}
+
+Note that both the pure HEFT ({\tt mtdep=0}), Born-improved HEFT ({\tt mtdep=1}) and the \ftapprox ({\tt mtdep=2}) modes can only be run for the
+SM case, as well as for variations of the trilinear Higgs coupling $c_{hhh}$, or for all coupling variations but only at LO ({\tt bornonly=1}). Variation of the wrong couplings will result in an output error message and the program will exit.
+
+The {\tt run.sh} script in the {\tt testrun} folder allows to perform 
+the runs of the different stages of \POWHEG{} easily.
+By typing {\tt ./run.sh} without any argument a menu with the
+4 {\tt mtdep} running modes described above is shown. 
+For all {\tt mtdep} running modes the code goes through all
+the various steps (parallel stages) of the calculation: 
+\begin{description}
+ \item[{\tt parallelstage=1}:]
+generation of the importance sampling grid for the Monte Carlo integration; 
+ \item[{\tt parallelstage=2}:] calculation of the integral for the inclusive cross section and an upper bounding function of the integrand;
+ \item[{\tt parallelstage=3}:] upper bounding factors for the generation of radiation are computed;
+ \item[{\tt parallelstage=4}:] event generation, i.e. production of {\tt pwgevents-*.lhe} files.
+\end{description}
+
+\noindent Please note: if you use the script {\tt run.sh [mtdep]}, the value for {\tt mtdep} given as an argument to {\tt run.sh} will be used, even if you specified a different value for {\tt mtdep} in {\tt powheg.input-save}.
+
+After running {\tt parallelstage=4}, the LHE files produced by \POWHEG{} can be directly showered by either \PYTHIA{} or \HERWIG{}. We provide a minimal setup for producing parton-shower matched distributions in {\tt test-pythia8}, respectively {\tt test-herwig7}. Both the angular-ordered and the dipole-shower implemented in \HERWIG{} can be operated by changing the {\tt showeralg} flag to either {\tt 'default'} or {\tt 'dipole'} in {\tt HerwigRun.sh}.
+
+\section{Running with full top quark mass dependence ({\tt mtdep=3})}
+The 2-loop virtual amplitudes in the NLO calculation with full top quark mass dependence are computed via a grid
+which encodes the dependence of the virtual 2-loop amplitude on the
+kinematic invariants $\hat{s}$ and
+$\hat{t}$~\cite{Heinrich:2017kxx}. Please be aware that the numerical
+values $m_H=125$\,GeV and $m_t=173$\,GeV are {\bf hardcoded} in this
+grid and therefore should not be changed in {\tt powheg.input-save} when running in the {\tt mtdep=3} mode.
+The grid is generated using python code and is directly interfaced to the
+\POWHEGBOX{} fortran code via the Python/C API. In order for the grid to be found by the code, the
+files ({\tt events.cdf, createdgrid.py, Virt\_full\_*E*.grid}) from the
+folder {\tt Virtual} need to be copied into the local folder where the
+code is run. Instead of copying the files, we suggest to create a
+symbolic link to the needed files. Assuming the code is run from a
+subfolder (e.g. {\tt testrun}) of the process folder, the link can be created in this subfolder as follows:
+\begin{description}
+\item{\tt ln -s ../Virtual/events.cdf events.cdf}
+\item{\tt ln -s ../Virtual/creategrid.py creategrid.py}
+\item{\tt for grid in ../Virtual/Virt\_full\_*E*.grid; do ln -s \$grid; done}
+\end{description}
+Once the links are in place, the code can be run with {\tt mtdep=3} as
+usual. To ensure that the linked files are found, we recommend to add the run subfolder to {\tt PYTHONPATH}. 
+The python code {\tt creategrid.py} will then combine the virtual grids generated with different values of the Higgs couplings
+to produce a new file {\tt Virt\_full*E*.grid} corresponding to the values of the couplings chosen in the {\tt powheg.input} file.
+
+The python code for the grid is written in python 3 and relies on the {\tt numpy} and {\tt sympy} packages, which 
+the user should install separately. When building the {\tt ggHH} process the Makefile will find the embedded python 3 library
+via a call to {\tt python3-config}, which the user should ensure is configured correctly and points to the correct library.
+Note that on some systems the Python/C API does not search for packages (such as {\tt numpy} and {\tt sympy}) in the same 
+paths as the python executable would. Therefore the user should ensure that these packages can be found also by an embedded python program.
+
+\section{Physical input parameters}
+
+The bottom quark is considered massless in all four {\tt mtdep} modes. The Higgs
+bosons are generated on-shell with zero width. A decay can be attached
+through the parton shower in the narrow-width approximation. However,
+the decay is by default switched off (see the {\tt hdecaymode} flag in the
+example {\tt powheg.input-save} input card in {\tt testrun}).
+
+The masses of the Higgs boson and the top quark are set by default to
+$m_h=125$\,GeV, $m_t=173$\,GeV, respectively, whereas their widths
+have been set to zero. The full SM 2-loop virtual contribution has
+been computed with these mass values hardcoded. 
+It is no problem to change the values of $m_h$
+and $m_t$ via the {\tt powheg.input-save} input card when running with
+{\tt mtdep} set to $0$, $1$ or $2$.
+However, when running with {\tt mtdep = 3}, 
+ {\bf the values of the Higgs mass and
+the top mass should be kept fixed at $m_h=125$\,GeV and $m_t=173$\,GeV}, and the widths should be zero.
+Otherwise the two-loop virtual part would contain a different top or Higgs mass than the rest of the calculation.
+
+The value of the Higgs couplings as defined in the context of the Electroweak Chiral Lagrangian (see~\cite{Buchalla:2018yce} and references within), can be varied directly in the {\tt powheg.input} card. These are, with their SM values as default:
+
+\begin{description}
+\item[{\tt chhh=1.0}:] { the ratio of the Higgs trilinear coupling to its SM value,}
+\item[{\tt ct=1.0}:] { the ratio of the Higgs Yukawa coupling to the top quark to its SM value,}
+\item[{\tt ctt=0.0}:] { the effective coupling of two Higgs bosons to a top quark pair,}
+\item[{\tt cggh=0.0}:] { the effective contact coupling of two gluons to the Higgs boson,}
+\item[{\tt cgghh=0.0}:] { the effective quartic contact coupling of two gluons to a Higgs pair.}
+\end{description}
+
+With the exception of the trilinear coupling {\tt chhh}, the Higgs couplings can only be varied with {\tt mtdep=3} at NLO (or in any run mode at LO).
+
+The \POWHEGBOX{} offers the possibility to use a damping factor $h=\texttt{hdamp}$ of the
+form~\cite{Alioli:2008tz,Alioli:2009je}
+\begin{align}
+  F=\frac{h^{2}}{(\pthh)^2+h^{2}}\,,
+\end{align}
+where \pthh is the transverse momentum of the Higgs boson pair, to
+limit the amount of hard radiation which is exponentiated in the
+Sudakov form factor. The default setting ($F\equiv1$, corresponding to {\tt hdamp}$=\infty$) results in
+quite hard tails for observables like
+$\pthh$~\cite{Heinrich:2017kxx}. Changing the damping factor $F$ by
+setting the flag {\tt hdamp} to some finite value in the input
+card brings the high transverse momentum tails down towards the fixed-order NLO
+predictions. Varying {\tt hdamp} allows to assess shower untertainties
+within the \POWHEG{} matching scheme. However, when choosing a value
+for {\tt hdamp}, it is important not to cut into the Sudakov
+regime. In fact, a too low value for {\tt hdamp} could spoil the
+logarithmic accuracy of the prediction. For this reason we suggest not
+to choose values for {\tt hdamp} below $\sim 200$. Our default value is  {\tt hdamp=250}.
+
+\section{Trouble shooting}
+
+Below is a list of potential issues:
+
+\begin{itemize}
+\item With {\tt mtdep=3}, the powheg *.log files contain the string ``grid not found": make sure your run folder contains the following files 
+(or symbolic links to these files located in the folder `Virtual'): {\tt events.cdf, creategrid.py} and the grid files  {\tt Virt\_full\_*E*.grid}.
+\item The distributions contain spikes: make sure the flags {\tt check\_bad\_st1} and {\tt check\_bad\_st2} (present in \POWHEG{} svn revisions $\geq 3600$) are set to 1. These flags discard outliers in the xgrid files. If you still find outliers with these flags switched on, the ``bad" runs should be removed 
+(manually, or using the script {\tt automated\_removal.py} present in the subfolder {\tt shell}).
+\item Problems related to the {\tt gcc 6.3.0} compiler have been reported. They should not occur when using a more recent {\tt gcc} compiler.
+\end{itemize}
+
+
+\begin{thebibliography}{10}
+
+%\cite{Heinrich:2019bkc}
+\bibitem{Heinrich:2019bkc}
+  G.~Heinrich, S.~P.~Jones, M.~Kerner, G.~Luisoni and L.~Scyboz,
+  ``Probing the trilinear Higgs boson coupling in di-Higgs production at NLO QCD including parton shower effects,''
+  arXiv:1903.08137 [hep-ph].
+  %%CITATION = ARXIV:1903.08137;%%
+
+  %\cite{Nason:2004rx}
+\bibitem{Nason:2004rx}
+  P.~Nason,
+  ``A new method for combining NLO QCD with shower Monte Carlo algorithms,''
+  JHEP {\bf 0411} (2004) 040
+  [arXiv:hep-ph/0409146].
+  %%CITATION = JHEPA,0411,040;%%
+
+  %\cite{Frixione:2007vw}
+\bibitem{Frixione:2007vw}
+  S.~Frixione, P.~Nason and C.~Oleari,
+  ``Matching NLO QCD computations with Parton Shower simulations: the POWHEG method,''
+  JHEP {\bf 0711} (2007) 070
+  [arXiv:0709.2092].
+  %%CITATION = JHEPA,0711,070;%%
+
+  %\cite{Alioli:2010xd}
+\bibitem{Alioli:2010xd}
+  S.~Alioli, P.~Nason, C.~Oleari and E.~Re,
+  ``A general framework for implementing NLO calculations in shower Monte Carlo programs: the POWHEG BOX,''
+  JHEP {\bf 1006} (2010) 043
+  [arXiv:1002.2581].
+
+  %\cite{Jezo:2015aia}
+\bibitem{Jezo:2015aia}
+  T.~Jezo and P.~Nason,
+  ``On the Treatment of Resonances in Next-to-Leading Order Calculations Matched to a Parton Shower,''
+  JHEP {\bf 1512} (2015) 065
+  [arXiv:1509.09071].
+
+\bibitem{Heinrich:2017kxx}
+  G.~Heinrich, S.~P.~Jones, M.~Kerner, G.~Luisoni and E.~Vryonidou,
+  %``NLO predictions for Higgs boson pair production with full top quark mass dependence matched to parton showers,''
+  JHEP {\bf 1708} (2017) 088
+%  doi:10.1007/JHEP08(2017)088
+  [arXiv:1703.09252 [hep-ph]].
+  %%CITATION = doi:10.1007/JHEP08(2017)088;%%
+
+\bibitem{Borowka:2016ehy}
+  S.~Borowka, N.~Greiner, G.~Heinrich, S.~P.~Jones, M.~Kerner, J.~Schlenk, U.~Schubert and T.~Zirke,
+  %``Higgs Boson Pair Production in Gluon Fusion at Next-to-Leading Order with Full Top-Quark Mass Dependence,''
+  Phys.\ Rev.\ Lett.\  {\bf 117} (2016) no.1,  012001
+   Erratum: [Phys.\ Rev.\ Lett.\  {\bf 117} (2016) no.7,  079901]
+%  doi:10.1103/PhysRevLett.117.079901, 10.1103/PhysRevLett.117.012001
+  [arXiv:1604.06447 [hep-ph]].
+
+\bibitem{Borowka:2016ypz}
+  S.~Borowka, N.~Greiner, G.~Heinrich, S.~P.~Jones, M.~Kerner, J.~Schlenk and T.~Zirke,
+  %``Full top quark mass dependence in Higgs boson pair production at NLO,''
+  JHEP {\bf 1610} (2016) 107
+%  doi:10.1007/JHEP10(2016)107
+  [arXiv:1608.04798 [hep-ph]].
+
+%\cite{Alioli:2008tz}
+\bibitem{Alioli:2008tz}
+  S.~Alioli, P.~Nason, C.~Oleari and E.~Re,
+  %``NLO Higgs boson production via gluon fusion matched with shower in POWHEG,''
+  JHEP {\bf 0904} (2009) 002
+  [arXiv:0812.0578].
+
+  %\cite{Alioli:2009je}
+\bibitem{Alioli:2009je}
+  S.~Alioli, P.~Nason, C.~Oleari and E.~Re,
+  ``NLO single-top production matched with shower in POWHEG: s- and t-channel contributions,''
+  JHEP {\bf 0909} (2009) 111
+   Erratum: [JHEP {\bf 1002} (2010) 011]
+  [arXiv:0907.4076].
+  
+  \bibitem{Buchalla:2018yce}
+  G.~Buchalla, M.~Capozi, A.~Celis, G.~Heinrich and L.~Scyboz,
+  ``Higgs boson pair production in non-linear Effective Field Theory with full $m_t$-dependence at NLO QCD,''
+  JHEP {\bf 1809} (2018) 057
+   [APS Physics {\bf 2018} (2018) 57]
+  [arXiv:1806.05162 [hep-ph]].
+  
+%\cite{Cullen:2014yla}
+\bibitem{Cullen:2014yla}
+  G.~Cullen {\it et al.},
+  ``GoSam-2.0: a tool for automated one-loop calculations within the Standard Model and beyond,''
+  Eur.\ Phys.\ J.\ C {\bf 74} (2014) no.8,  3001
+  %doi:10.1140/epjc/s10052-014-3001-5
+  [arXiv:1404.7096 [hep-ph]].
+
+\end{thebibliography}
+
+\end{document}
+
+
+
+
+

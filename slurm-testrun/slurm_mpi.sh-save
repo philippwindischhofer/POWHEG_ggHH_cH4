@@ -1,0 +1,53 @@
+#!/bin/bash -l
+
+#SBATCH -J %(jobname)s
+#SBATCH -o ./qsub/out/%(jobname)s_%%j.out
+#SBATCH -e ./qsub/out/%(jobname)s_%%j.err
+#SBATCH -D ./
+#SBATCH --mail-type=ALL
+#SBATCH --mail-user=%(email)s
+#SBATCH --mem=7000
+#SBATCH --time=%(time)s
+#SBATCH --partition=%(partition)s
+#SBATCH --nodes=%(nodes)s
+#SBATCH --ntasks-per-node=%(ntasks-per-node)s
+#SBATCH --dependency=%(dependency)s
+
+#---- Powheg settings for run ----#
+NODES=%(nodes)s
+PRG=%(prg)s
+STARTSEED=%(startseed)s
+LOGFILE='%(powheg_log_filename)s'
+export PYTHONPATH="%(python_path)s:$PYTHONPATH"
+#---- ----------------------- ----#
+
+module purge && module load gcc/8 anaconda/3/2019.03 git
+
+RUNDIR=$PWD
+
+echo '>>>> Beginning of output file'
+echo '>>>> PYTHONPATH:'
+echo $PYTHONPATH
+
+echo '>>>> Host name:'
+hostname -f
+
+echo '>>>> Ulimit command'
+ulimit -a
+
+echo '>>>> Environmental variables'
+env
+
+cd $RUNDIR
+echo '>>>> where I am now (job beginning)'
+pwd
+
+echo '>>>> time now (job beginning)'
+date
+
+echo '>>>> run Powheg:'
+
+srun ./pwhg_run.sh $STARTSEED $PRG $LOGFILE
+
+echo '>>>> time now (job end)'
+date

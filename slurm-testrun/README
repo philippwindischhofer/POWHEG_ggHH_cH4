@@ -1,0 +1,42 @@
+== Usage Instructions ==
+
+To launch jobs (wait for each run to finish before launching the next job)
+python pwhg_launch.py --configuration=slurm.yaml --parallelstage=1 --xgriditeration=1
+python pwhg_launch.py --configuration=slurm.yaml --parallelstage=1 --xgriditeration=2
+python pwhg_launch.py --configuration=slurm.yaml --parallelstage=1 --xgriditeration=3
+python pwhg_launch.py --configuration=slurm.yaml --parallelstage=2 --xgriditeration=3
+python pwhg_launch.py --configuration=slurm.yaml --parallelstage=3 --xgriditeration=3
+python pwhg_launch.py --configuration=slurm.yaml --parallelstage=4 --xgriditeration=3
+
+== pwhg_launch.py ==
+
+Launches MPI POWHEG-V2 jobs.
+
+Parameters:
+--configuration
+  A yaml file containing
+--startseed
+  The first seed to be passed to pwhg_main
+--parallelstage
+  The parallelstage to set in the powheg.input
+--xgriditeration
+  The xgriditeration to be set in the powheg.input
+
+== slurm.yaml ==
+
+A YAML file specifying the run configuration.
+
+Example:
+---
+nodes: 2
+ntasks-per-node: 32
+partition: "express"
+time: "00:10:00"
+email: "sjones@mpp.mpg.de"
+python_path: "/u/sjones/POWHEG-BOX-V2/ggHH_EWChL/slurm-testrun:/u/sjones/POWHEG-BOX-V2/ggHH_EWChL/Virtual"
+batch_command: "sbatch"
+script_template: "slurm_mpi.sh-save"
+powheg_input_template: "powheg.input-save"
+prg: "../pwhg_main"
+...
+

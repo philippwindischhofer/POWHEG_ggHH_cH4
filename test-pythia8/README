@@ -1,0 +1,11 @@
+
+
+To run Pythia8 on LHE files, compile main-PYTHIA8-lhef in the process directory.
+Then you can run directly on a single LHE file with
+
+
+	(echo pwgevents.lhe) | ../main-PYTHIA8-lhef
+
+
+The program runs the analysis and produces a pwgPOWHEG+PYTHIA8 top file with 
+the histograms. 

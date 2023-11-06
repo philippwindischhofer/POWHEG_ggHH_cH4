@@ -1,0 +1,26 @@
+
+
+To run Herwig7 on LHE files, make sure you compiled the powhegHerwig.so library
+in the ggHH/Herwig7.1 directory by running "make". You may need to export your
+Herwig bin/ installation path to PATH, or do
+
+        source /PATHTOHERWIG/bin/activate
+
+Link the Herwig interface library in your run directory with
+
+        ln -s ../Herwig7.1/powhegHerwig.so
+
+
+Then you can run directly on a single LHE file with
+
+
+	(echo pwgevents-0001.lhe) | sh HerwigRun.sh
+
+
+The program runs the analysis and produces a pwg-POWHEG+HERWIG7 top file with 
+the histograms.
+
+The parameters entering the Herwig runcard are defined in the HerwigRun.sh
+script and can be changed accordingly. To change the shower, check the flag
+
+        showeralg='default' / showeralg='dipole' 
