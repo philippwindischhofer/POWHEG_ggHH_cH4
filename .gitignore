@@ -1,3 +1,8 @@
 *~
 .svn
 *.log
+btilde_gghh.f
+sigremnants_gghh.f
+mod-gfortran/
+obj-gfortran/
+pwhg_main
