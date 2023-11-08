@@ -73,10 +73,8 @@ c******************************************************
 
       if(mtdep.eq.3) then
 C--   Born Cross section with finite top mass
-         write(*,*) "HHH CALL ME2BORN_FULL WITH IMODE = 0"
-         call ME2born_full(p,born,mpol,0)
-         write(*,*) "HHH CALL ME2BORN_FULL WITH IMODE = 1"
-         call ME2born_full(p,born,mpol,1)
+         call ME2born_full(p, born,mpol,0)
+         call ME2born_full(p,xborn,mpol,1)
 
       else
          write(*,*) "Unknown value of 'largemtlim', abort!"
