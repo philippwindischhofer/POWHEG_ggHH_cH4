@@ -197,7 +197,7 @@ subroutine ME2born_gbij(p, mh2, mt2, muren2, chhh, ct, ctt, cg, cgg, mpol, imode
 
      ! HHHHH how to input 'correction' here correctly? HHHH
      gauge1tri=12._ki*mh2*m1sq/(s12-mh2)*(2._ki+(4._ki*m1sq-s12)*C12)*(ct*chhh*correction &
-          &  + 2._ki/3*(s12-mh2)/mh2*ctt) + 6._ki*s12*mh2/(s12-mh2)*cg*chhh*correction
+          &  + 2._ki/3*(s12-mh2)/mh2*ctt) + 6._ki*s12*mh2/(s12-mh2)*cg*chhh
   else
      !>> do NOT include kappa3 bit for counterterms
      gauge1tri=12._ki*mh2*m1sq/(s12-mh2)*(2._ki+(4._ki*m1sq-s12)*C12)*(ct*1d0 &
