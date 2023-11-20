@@ -64,12 +64,13 @@ do
     rm powheg.input
 done
 
+
 parstage=2
 echo "***********************************************"
 echo " stage " $parstage
 echo "***********************************************"
 
-xgrid=$nxgriditeration
+xgrid=3
 
 cat powheg.input-save | sed "s/mtdep.*/mtdep $mode/ ; s/parallelstage.*/parallelstage $parstage/ ; s/xgriditeration.*/xgriditeration $xgrid/">powheg.input
 cp powheg.input powheg.input-$parstage

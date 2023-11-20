@@ -1,5 +1,4 @@
       subroutine init_couplings
-      use Born_amplitudes, only: physics_initialise_f90
       implicit none
       include 'PhysPars.h'
       include 'pwhg_flg.h'
@@ -34,8 +33,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (ph_Wwidth.le.0d0) ph_Wwidth =  0.0d0
       ph_mdlchhh = powheginput("#chhh")
       if (ph_mdlchhh.le.-99d0) ph_mdlchhh = 1.0d0
-      ph_mdlch4 = powheginput("#ch4")
-      if (ph_mdlch4.le.-9999d0) ph_mdlch4 = 0.0d0
       ph_mdlct = powheginput("#ct")
       if (ph_mdlct.le.-99d0) ph_mdlct = 1.0d0
       ph_mdlcthh = powheginput("#ctt")
@@ -84,7 +81,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       write(*,*) 'GF = ',ph_GF
       write(*,*) 'top mass = ',ph_topmass
       write(*,*) 'chhh  = ',ph_mdlchhh
-      write(*,*) 'ch4   = ',ph_mdlch4
       write(*,*) 'ct    = ',ph_mdlct
       write(*,*) 'ctt   = ',ph_mdlcthh
       write(*,*) 'cggh  = ',ph_mdlcgg
@@ -92,7 +88,6 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       write(*,*) '*************************************'
       write(*,*)
       endif
-      call physics_initialise_f90(ph_alphaem,ph_wmass,ph_sthw2,ph_mdlch4)
       call golem_initialize
       end
 

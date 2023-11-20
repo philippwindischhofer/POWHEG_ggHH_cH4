@@ -20,10 +20,6 @@
       common/cmtdep/mtdep
       integer hdecaymode
       common/chdecaymode/hdecaymode
-      logical ini_test
-      logical btildebornon,btildevirton,btildecollon,btilderealon
-      data ini_test/.true./
-      save ini_test,btildebornon,btildevirton,btildecollon,btilderealon
       real * 8 cHHH,ct,ctt,cg,cgg
 c     check nlegborn. This is only a sanity check while we are TESTING
 c     the code and we change often from one process to the other
@@ -33,13 +29,6 @@ c     the code and we change often from one process to the other
          stop
       endif
 
-      if(ini_test) then
-         btildebornon = .not.(powheginput("#btildeborn").eq.0)
-         btildevirton = .not.(powheginput("#btildevirt").eq.0)
-         btildecollon = .not.(powheginput("#btildecoll").eq.0)
-         btilderealon = .not.(powheginput("#btildereal").eq.0)
-         ini_test = .false.
-      endif
 
 c******************************************************
 c     Choose the type of computation:
@@ -128,13 +117,8 @@ c     index of the first LIGHT coloured parton in the final state
          ctt = powheginput('#ctt')
          cg = powheginput('#cggh')
          cgg = powheginput('#cgghh')
-         if( flg_bornonly .or. .not.btildevirton )then
-            write(*,*)'>>> VIRTUAL not needed!'
-            write(*,*)'    not loading virt-grids...'
-         else
-            write(*,*) 'PROC ', ct, ctt, cg, cgg
-            call initgrids(cHHH,ct,ctt,cg,cgg)
-         endif
+         write(*,*) 'PROC ', ct, ctt, cg, cgg
+         call initgrids(cHHH,ct,ctt,cg,cgg)
       endif
 
 *********************************************************************

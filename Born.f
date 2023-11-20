@@ -32,7 +32,7 @@
       real * 8 p(0:3,nlegs),bornjk(nlegs,nlegs)
       real * 8 pTH2,shat,that,uhat
       integer bflav(nlegs)
-      real * 8 bmunu(0:3,0:3,nlegs),born,born1,born2,xborn
+      real * 8 bmunu(0:3,0:3,nlegs),born,born1,born2
       real * 8 modg1, modg2
       integer mu,nu,i,j,k,l,lp
       real* 8 amp2_inf,amp2_top,colcf,prefac,check
@@ -71,11 +71,48 @@ c     mtdep = 3: full theory
 c     mtdep = 4,5: checks
 c******************************************************
 
-      if(mtdep.eq.3) then
-C--   Born Cross section with finite top mass
-         call ME2born_full(p, born,mpol,0)
-         call ME2born_full(p,xborn,mpol,1)
+      if(mtdep.eq.0) then
+C--   Born Cross section in the large top mass limit
+         call ME2born_htl(p,born)
 
+      else if(mtdep.eq.1) then
+C--   Born Cross section in the large top mass limit and rescale afterwards
+         call ME2born_htl(p,born)
+
+      else if(mtdep.eq.2) then
+C--   Born Cross section with finite top mass
+         call ME2born_full(p,born,mpol)
+
+      else if(mtdep.eq.3) then
+C--   Born Cross section with finite top mass
+         call ME2born_full(p,born,mpol)
+
+      else if(mtdep.eq.4) then
+C--   Test full Born Glover/Bij expressions with GoSam:
+         call ME2born_full(p,born1,mpol)
+         call ME2born_top(p,born2)
+         write(*,*) "--> Born Glover/Bij:", born1
+         write(*,*) "--> Born GoSam     :", born2
+         write(*,*) "--> Born: should be one:", born2/born1
+         born=born1
+c     pause
+
+      else if(mtdep.eq.5) then
+c   compare Born Glover/Bij expressions to values from grid
+         call ME2born_full(p,born,mpol)
+         call ME2born_grid(p,born1)
+         write(*,*) "Born_full = ", born
+         write(*,*) "Born_grid = ", born1
+         write(*,*) "--> Born_full/Born_grid: ", born/born1
+         born=born1
+c      pause
+
+c$$$      else if(mtdep.eq.4) then
+c$$$C--   Test full GoSam expressions with large top mass limit:
+c$$$         call ME2born_htl(p,born1)
+c$$$         call ME2born_full(p,born,mpol)
+c$$$         write(*,*) "--> Born: should be one (Full/HEFT):", born2/born1
+c$$$         write(*,*) "--> Born: should be one (GS/G.vd.B):", born2/born
       else
          write(*,*) "Unknown value of 'largemtlim', abort!"
          call exit(1)
@@ -106,7 +143,7 @@ C     Spin-correlated Born amplitudes
                if((mtdep.eq.0).or.(mtdep.eq.1)) then
                   do mu=0,3
                      do nu=0,3
-                        bmunu(mu,nu,j) = xborn * ((p(mu,j)*p(nu,i)+
+                        bmunu(mu,nu,j) = born * ((p(mu,j)*p(nu,i)+
      $                       p(nu,j)*p(mu,i))/kn_sborn-gtens(mu,nu)/2d0)
                      enddo
                   enddo
@@ -131,6 +168,18 @@ C     Spin-correlated Born amplitudes
                      check=check+gtens(mu,mu)*bmunu(mu,mu,j)
                   enddo
 
+C--   Print for checking purposes:
+c                  print *, j, "check/born=", check/born
+c                  print *, "bmunu",j,":"
+c                  print *, bmunu(:,0,j)
+c$$$                  print *, bmunu(:,1,j)
+c$$$                  print *, bmunu(:,2,j)
+c$$$                  print *, bmunu(:,3,j)
+c$$$                  print *, "bmunu2:"
+c$$$                  print *, bmunu(:,0,2)
+c$$$                  print *, bmunu(:,1,2)
+c$$$                  print *, bmunu(:,2,2)
+c$$$                  print *, bmunu(:,3,2)
                endif
             endif
 
@@ -139,7 +188,7 @@ C--   Rule from 2.98 in FNO2007, leads to B_ij=Cj * B, where i#j
             do k=j+1,nlegs
                if(bflav(k).eq.0) then
                   colcf=CA
-                  bornjk(j,k)=xborn*colcf
+                  bornjk(j,k)=born*colcf
                   bornjk(k,j)=bornjk(j,k)
                endif
             enddo
@@ -217,7 +266,7 @@ c      write(*,*) 'Ratio (should be one) = ', tmp/modg1
 
       end subroutine ME2born_htl
 
-      subroutine ME2born_full(p, amp2, mpol, imode)
+      subroutine ME2born_full(p, amp2, mpol)
       use Born_amplitudes, only: ME2born_gbij
       implicit none
       include 'nlegborn.h'
@@ -225,7 +274,6 @@ c      write(*,*) 'Ratio (should be one) = ', tmp/modg1
       include 'PhysPars.h'
       include 'pwhg_math.h'
       integer nlegs
-      integer imode !!>>> imode=0 [with kappa4 bit], imode=1 [no kappa4 bit]
       parameter (nlegs=nlegborn)
 c     input:
       real * 8 p(0:3,nlegs)
@@ -242,7 +290,7 @@ c     invariants, abbreviations:
       ao2pi = st_alpha/(2d0*pi)
 
       call ME2born_gbij(p, MH2, MT2,st_muren2, ph_mdlchhh, ph_mdlct,
-     $                  ph_mdlcthh, ph_mdlcgg, ph_mdlcgghh, mpol, imode)
+     $                  ph_mdlcthh, ph_mdlcgg, ph_mdlcgghh, mpol)
 
 c     sum over all helicity configurations:
       amp2 = mpol(1,1)*conjg(mpol(1,1)) + mpol(1,-1)*conjg(mpol(1,-1))
@@ -282,8 +330,29 @@ c     invariants, abbreviations:
       external dotp
 
       if (mtdep.eq.1) then
-         write(*,*)'ERROR: use this patch only with mtdep == 3'
-         stop
+
+         modg1 = 0d0
+         modg2 = 0d0
+
+         MH2   = ph_Hmass2
+         MT2   = ph_topmass**2
+         s     = kn_sborn
+         denH  = 1/(s-MH2)
+
+         modg1 = 4d0/9d0
+         modg1 = modg1 - 8d0/3d0*MH2*ph_mdlchhh*denH
+         modg1 = modg1 + 4d0*(MH2*ph_mdlchhh*denH)**2
+         modg2 = 0
+
+         call ME2born_gbij(kn_cmpborn, MH2, MT2,st_muren2,
+     $                     ph_mdlchhh, ph_mdlct, ph_mdlcthh,
+     $                     ph_mdlcgg, ph_mdlcgghh, mpol)
+
+c     sum over all helicity configurations:
+         amp2full = mpol(1,1)*conjg(mpol(1,1)) +
+     $              mpol(1,-1)*conjg(mpol(1,-1))
+
+         BI_rescaling = amp2full / ((modg1 + modg2) *s**2)
       else
          BI_rescaling = 1d0
       endif

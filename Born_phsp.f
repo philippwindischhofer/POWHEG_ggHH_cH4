@@ -13,10 +13,6 @@
       integer mu,k
       logical debug
       parameter(debug=.false.)
-c-----------------------------------------------------------------------
-      real*8 bb_costh, bb_phi, yy_costh, yy_phi
-      common/H_decay_analysis/bb_costh, bb_phi, yy_costh, yy_phi
-c-----------------------------------------------------------------------
       logical ini
       data ini/.true./
       save ini
@@ -38,12 +34,6 @@ c     Assign the Higgs bosons mass
          write(*,*) '*******************************************'
          ini=.false.
       endif
-
-      !>> Higgs decay angles (for analysis)
-      bb_costh= -1d0 + 2d0*rand()
-      bb_phi= 2d0*pi*rand()
-      yy_costh= -1d0 + 2d0*rand()
-      yy_phi= 2d0*pi*rand()
 
       sqrts = sqrt(kn_sbeams)
       xjac=1d0

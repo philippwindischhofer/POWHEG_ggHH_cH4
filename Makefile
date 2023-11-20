@@ -92,6 +92,7 @@ else
 PDFPACK=mlmpdfif.o hvqpdfpho.o
 endif
 
+ifeq ("$(ANALYSIS)","default")
 ##To include Fastjet configuration uncomment the following lines.
 FASTJET_CONFIG=$(shell which fastjet-config)
 LIBSFASTJET += $(shell $(FASTJET_CONFIG) --libs --plugins ) -lstdc++
@@ -99,6 +100,9 @@ FJCXXFLAGS+= $(shell $(FASTJET_CONFIG) --cxxflags)
 PWHGANAL=pwhg_analysis.o
 ## Also add required Fastjet drivers to PWHGANAL (examples are reported)
 PWHGANAL+= fastjetfortran.o
+else
+PWHGANAL=pwhg_analysis-dummy.o
+endif
 
 all: pwhg_main
 
@@ -143,8 +147,8 @@ pwhg_cpHTO_reweight.o: pwhg_cpHTO_reweight.f $(INCLUDE)
 	$(CXX) $(DEBUG) -c -o $(OBJDIR)/$@ $^ $(NINJAFLAGSQP) $(FJCXXFLAGS)
 
 # PYTHIA 8
-PYTHIA8LOCATION=$(shell pythia8-config --prefix)
-#PYTHIA8LOCATION=/usr/
+#PYTHIA8LOCATION=$(shell pythia8-config --prefix)
+PYTHIA8LOCATION=/usr/
 FJCXXFLAGS+=-I$(PYTHIA8LOCATION)/include -I$(PYTHIA8LOCATION)/include/Pythia8 -I$(PYTHIA8LOCATION)/include/Pythia8Plugins
 LIBPYTHIA8=-L$(PYTHIA8LOCATION)/lib64/ -lpythia8  -lstdc++ -ldl -lz
 LIBHEPMC=$(shell pythia8-config --hepmc)
@@ -233,8 +237,6 @@ include GoSamlib/Makefile.virt.dep
 MEborn.o:  precision_golem.o parametre.o matrice_s.o form_factor_type.o form_factor_4p.o form_factor_3p.o cache.o constante.o array.o spinor.o D0functions.o
 
 Born.o: MEborn.o
-
-init_couplings.o: MEborn.o
 
 btilde_gghh.f: btilde.f
 	bash generate_files.sh btilde

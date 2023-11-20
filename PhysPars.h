@@ -7,7 +7,7 @@ c -*- Fortran -*-
      $     ph_cmass,ph_bmass,ph_topmass,ph_emass,ph_mumass,ph_taumass,
      $     ph_CKM(3,3),
      $     ph_bwidth,ph_topwidth,ph_tauwidth,ph_Zwidth,ph_Wwidth,ph_Hwidth,
-     $     ph_mdlchhh, ph_mdlch4, ph_mdlct, ph_mdlcthh, ph_mdlcgg, ph_mdlcgghh
+     $     ph_mdlchhh, ph_mdlct, ph_mdlcthh, ph_mdlcgg, ph_mdlcgghh
      
 
       common/ph_common/ph_alphaem,ph_sthw,ph_GF,
@@ -18,5 +18,5 @@ c -*- Fortran -*-
      $     ph_cmass,ph_bmass,ph_topmass,ph_emass,ph_mumass,ph_taumass,
      $     ph_CKM,
      $     ph_bwidth,ph_topwidth,ph_tauwidth,ph_Zwidth,ph_Wwidth,ph_Hwidth,
-     $     ph_mdlchhh, ph_mdlch4, ph_mdlct, ph_mdlcthh, ph_mdlcgg, ph_mdlcgghh
+     $     ph_mdlchhh, ph_mdlct, ph_mdlcthh, ph_mdlcgg, ph_mdlcgghh
       

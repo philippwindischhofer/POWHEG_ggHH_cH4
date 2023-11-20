@@ -33,7 +33,7 @@ c******************************************************
 
       else if (mtdep.eq.2) then
          call ME2born_htl(p, bornhtl)
-         call ME2born_full(p, bornfull, mpol, 1)
+         call ME2born_full(p, bornfull, mpol)
          call ME2virt_htl(p, virtual)
          virtual=virtual*bornfull/bornhtl
 
@@ -156,7 +156,7 @@ c     invariants, abbreviations:
       virtual = gridvirt(s,t)
 
 c    GH: added 23.2.17, warning: NF=5 hardcoded here!
-      call ME2born_full(p, bornfull, mpol, 1)
+      call ME2born_full(p, bornfull, mpol)
       call set_fac_ren_scales(muf,mur)
 
 c    including the terms from transformation to Vfin:
