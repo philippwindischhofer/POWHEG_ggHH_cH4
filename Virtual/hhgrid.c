@@ -2,7 +2,9 @@
 #include "hhgrid.h"
 
 #include <Python.h>
+#include <wchar.h>  // wchar_t, wstrtok
 #include <stdlib.h> // setenv, strdup, strtok, NULL
+#include <string.h> // strrchr
 #include <assert.h> // assert
 #include <unistd.h> // access
 
@@ -43,7 +45,7 @@ void python_printinfo()
 };
 // EOF - Helper Functions (mostly for Fortran)
 
-void combine_grids(const char* grid_temp, double cHHH, double ct, double ctt, double cg, double cgg)
+void combine_grids(const char* grid_temp, double cHHH, double ct, double ctt, double cg, double cgg, int EFTcount, int usesmeft, int lhaid, double renfac)
 {
     char* values[23] = {"+5.000000E-01_+4.782609E-01_+1.000000E+00_+6.875000E-01_+8.888889E-01",
   "-1.000000E+00_-2.500000E+00_+2.857143E-01_+4.666667E-01_+1.818182E-01",
@@ -76,10 +78,23 @@ void combine_grids(const char* grid_temp, double cHHH, double ct, double ctt, do
     size_t len_path_sep = strlen(path_sep);
     char* pythonpath = strdup(getenv("PYTHONPATH"));
     char* result = strtok( pythonpath, delims );
+    size_t len_grid_temp = strlen(grid_temp);
 
-    char grid_tmp[10];
-    strncpy(grid_tmp, grid_temp, 9); // Only take the first characters to look for the three basic cHHH grids
-    grid_tmp[9]='\0';
+    // Get length of grid_name basename
+    size_t len_basename_grid_name;
+    char* basename_grid_name = strrchr(grid_temp, *path_sep); 
+    if(basename_grid_name == NULL)
+    {
+        len_basename_grid_name = strlen(grid_temp); // no '/' in grid_temp: basename_grid_name = grid_temp
+    } else 
+    {
+        len_basename_grid_name = strlen(basename_grid_name + 1); // +1 to skip initial path_sep
+    }
+
+    char* grid_tmp = (char*) malloc (len_grid_temp - len_basename_grid_name + 9 + 1); // +1 for null terminator
+    memcpy(grid_tmp, grid_temp, len_grid_temp - len_basename_grid_name + 9); // Only take the first characters to look for the three basic cHHH grids
+    grid_tmp[len_grid_temp - len_basename_grid_name + 9] = '\0';
+    printf("grid_tmp: %s\n", grid_tmp);
 
     for (int i=0; i<(sizeof(values) / sizeof(values[0])); ++i) {
       size_t len_grid_name = strlen(grid_tmp) + strlen("_") + strlen(values[i]) + strlen(".grid") + 1;  // +14 for _***.grid
@@ -90,7 +105,7 @@ void combine_grids(const char* grid_temp, double cHHH, double ct, double ctt, do
       memcpy(grid_name + strlen(grid_tmp) + strlen("_") + strlen(values[i]), ".grid", strlen(".grid"));
       grid_name[len_grid_name-1] = '\0';
 
-    // Check if grid_name is accessible as-is    
+    // Check if grid_name is accessible as-is and if so add cwd to PYTHONPATH
     if( access(grid_name, F_OK) != -1 && access(grid_name, R_OK) != -1 )
     {
         printf("Looking for %s in current directory. Found\n", grid_name);
@@ -100,7 +115,8 @@ void combine_grids(const char* grid_temp, double cHHH, double ct, double ctt, do
         setenv("PYTHONPATH", ".", 1); // Set PYTHONPATH to look here
     }
 
-    // Else search PYTHONPATH for grid_name
+    // search PYTHONPATH for grid_name
+    search_paths = 1;
     while( search_paths == 1 && result != NULL )
     {
         size_t len_result = strlen(result);
@@ -125,6 +141,8 @@ void combine_grids(const char* grid_temp, double cHHH, double ct, double ctt, do
         }
     }
     }
+    grid_file_path[strlen(grid_file_path) - strlen("_") - strlen(values[0]) - strlen(".grid")] = '\0'; // take only the first characters as gridname
+    printf("Grid file path: %s\n", grid_file_path);
 
     PyObject* pModule = PyImport_ImportModule("creategrid");
     if(pModule == NULL)
@@ -142,11 +160,11 @@ void combine_grids(const char* grid_temp, double cHHH, double ct, double ctt, do
     }
     assert(pFct != NULL);
 
-    PyObject* pGridName = PyUnicode_FromString(grid_temp);
+    PyObject* pGridName = PyUnicode_FromString(grid_file_path);
     if(pGridName == NULL)
     {
         PyErr_Print();
-        printf("ERROR: Failed to create Python string from grid_temp: please check that grid_temp is a valid string\n");
+        printf("ERROR: Failed to create Python string from grid_file_path: please check that grid_file_path is a valid string\n");
     }
     assert(pGridName != NULL);
     
@@ -190,7 +208,39 @@ void combine_grids(const char* grid_temp, double cHHH, double ct, double ctt, do
     }
     assert(pcggValue != NULL);
 
-    PyObject* pGridNameTuple = PyTuple_Pack(6,pGridName,pcHHHValue,pctValue,pcttValue,pcgValue,pcggValue);
+    PyObject* pEFTcountValue = PyLong_FromLong(EFTcount);
+    if(pEFTcountValue == NULL)
+    {
+        PyErr_Print();
+        printf("ERROR: Failed to create Python long integer from EFTcount: please check that EFTcount is a valid integer\n");
+    }
+    assert(pEFTcountValue != NULL);
+
+    PyObject* pusesmeftValue = PyLong_FromLong(usesmeft);
+    if(pusesmeftValue == NULL)
+    {
+        PyErr_Print();
+        printf("ERROR: Failed to create Python long integer from usesmeft: please check that usesmeft is a valid integer\n");
+    }
+    assert(pusesmeftValue != NULL);
+
+    PyObject* plhaidValue = PyLong_FromLong(lhaid);
+    if(plhaidValue == NULL)
+    {
+        PyErr_Print();
+        printf("ERROR: Failed to create Python long integer from lhaid: please check that lhaid is a valid integer\n");
+    }
+    assert(plhaidValue != NULL);
+
+    PyObject* prenfacValue = PyFloat_FromDouble(renfac);
+    if(prenfacValue == NULL)
+    {
+        PyErr_Print();
+        printf("ERROR: Failed to create Python double from renfac: please check that renfac is a valid double\n");
+    }
+    assert(prenfacValue != NULL);
+
+    PyObject* pGridNameTuple = PyTuple_Pack(10,pGridName,pcHHHValue,pctValue,pcttValue,pcgValue,pcggValue,pEFTcountValue,pusesmeftValue,plhaidValue,prenfacValue);
     if(pGridNameTuple == NULL)
     {
         PyErr_Print();
@@ -209,10 +259,19 @@ void combine_grids(const char* grid_temp, double cHHH, double ct, double ctt, do
     // Cleanup
     free(pythonpath);
     free(grid_file_path);
+    free(grid_tmp);
     Py_XDECREF(pModule);
     Py_XDECREF(pFct);
     Py_XDECREF(pGridName);
     Py_XDECREF(pcHHHValue);
+    Py_XDECREF(pctValue);
+    Py_XDECREF(pcttValue);
+    Py_XDECREF(pcgValue);
+    Py_XDECREF(pcggValue);
+    Py_XDECREF(pEFTcountValue);
+    Py_XDECREF(pusesmeftValue);
+    Py_XDECREF(plhaidValue);
+    Py_XDECREF(prenfacValue);
     Py_XDECREF(pGridNameTuple);
     Py_XDECREF(pFunct);
 };
@@ -225,20 +284,41 @@ PyObject* grid_initialize(const char* grid_name)
     char* grid_file_path;
     size_t len_path_sep = strlen(path_sep);
     size_t len_grid_name = strlen(grid_name);
+
+    // Get length of grid_name basename
+    size_t len_basename_grid_name;
+    char* basename_grid_name = strrchr(grid_name, *path_sep); 
+    if(basename_grid_name == NULL)
+    {
+        len_basename_grid_name = strlen(grid_name); // no '/' in grid_name: basename_grid_name = grid_name
+    } else 
+    {
+        len_basename_grid_name = strlen(basename_grid_name + 1); // +1 to skip initial path_sep
+    }
+    
     char* pythonpath = strdup(getenv("PYTHONPATH"));
     char* result = strtok( pythonpath, delims );
 
-    // Check if grid_name is accessible as-is
+    char* events_file_path;
+    char* events_name = "events.cdf";
+    size_t len_events_name = strlen(events_name);
+
+    char* creategrid_file_path;
+    char* creategrid_name = "creategrid.py";
+    size_t len_creategrid_name = strlen(creategrid_name);
+    
+    // Check if grid_name is accessible as-is and if so add cwd to PYTHONPATH
     if( access(grid_name, F_OK) != -1 && access(grid_name, R_OK) != -1 )
     {
-	printf("Looking for %s in current directory. Found\n", grid_name);
+        printf("Looking for %s in current directory. Found\n", grid_name);
         grid_file_path = (char*) malloc(len_grid_name + 1); // +1 for null terminator
         memcpy(grid_file_path, grid_name, len_grid_name + 1);
         search_paths = 0;
         setenv("PYTHONPATH", ".", 1); // Set PYTHONPATH to look here
     }
 
-    // Else search PYTHONPATH for grid_name
+    // search PYTHONPATH for grid_name and events_name
+    search_paths = 1;
     while( search_paths == 1 && result != NULL )
     {
         size_t len_result = strlen(result);
@@ -251,6 +331,23 @@ PyObject* grid_initialize(const char* grid_name)
         {
             printf("found\n");
             search_paths = 0;
+            
+            // Now check for other required files
+            // events.cdf
+            events_file_path = (char*) malloc (len_result + len_path_sep + len_grid_name - len_basename_grid_name + len_events_name + 1); // +1 for null terminator
+            memcpy(events_file_path, result, len_result);
+            memcpy(events_file_path + len_result, path_sep, len_path_sep);
+            memcpy(events_file_path + len_result + len_path_sep, grid_name, len_grid_name - len_basename_grid_name);
+            memcpy(events_file_path + len_result + len_path_sep + len_grid_name - len_basename_grid_name, events_name, len_events_name + 1); // +1 for null terminator
+            printf("Searching for %s in: %s ", events_name, events_file_path);
+            if( access(events_file_path, F_OK) != -1 && access(events_file_path, R_OK) != -1 )
+            {
+                printf("found\n");
+            } else {
+                printf("not found\n");
+                printf("ERROR: Failed to find events.cdf\n");
+                exit(1);
+            }
         } else
         {
             printf("not found\n");
@@ -263,8 +360,36 @@ PyObject* grid_initialize(const char* grid_name)
         }
     }
 
+    // search PYTHONPATH for creategrid_name
+    search_paths = 1;
+    while( search_paths == 1 && result != NULL )
+    {
+        size_t len_result = strlen(result);
+        creategrid_file_path = (char*) malloc (len_result + len_path_sep + len_creategrid_name + 1); // +1 for null terminator
+        memcpy(creategrid_file_path, result, len_result);
+        memcpy(creategrid_file_path + len_result, path_sep, len_path_sep);
+        memcpy(creategrid_file_path + len_result + len_path_sep, creategrid_name, len_creategrid_name + 1); // +1 for null terminator
+        printf("Searching for %s in: %s ", creategrid_name, creategrid_file_path);
+        if( access(creategrid_file_path, F_OK) != -1 && access(creategrid_file_path, R_OK) != -1 )
+        {
+            printf("found\n");
+            search_paths = 0;
+        } else
+        {
+            printf("not found\n");
+            result = strtok( NULL, delims );
+            if(result == NULL)
+            {
+                printf("ERROR: Failed to find creategrid.py\n");
+                exit(1);
+            }
+        }
+    }
+
     printf("PYTHONPATH: %s\n", getenv("PYTHONPATH"));
     printf("Grid Path: %s\n", grid_file_path);
+    printf("Events file Path: %s\n", events_file_path);
+    printf("CreateGrid file Path: %s\n", creategrid_file_path);
 
     PyObject* pModule = PyImport_ImportModule("creategrid");
     if(pModule == NULL)
@@ -281,7 +406,7 @@ PyObject* grid_initialize(const char* grid_name)
         printf("ERROR: Failed to locate CreateGrid class: please check that you have the latest version of creategrid.py and Python 3.x\n");
     }
     assert(pClass != NULL);
-
+    
     if(!PyCallable_Check(pClass))
     {
         PyErr_Print();
@@ -315,6 +440,8 @@ PyObject* grid_initialize(const char* grid_name)
     // Cleanup
     free(pythonpath);
     free(grid_file_path);
+    free(events_file_path);
+    free(creategrid_file_path);
     Py_XDECREF(pModule);
     Py_XDECREF(pClass);
     Py_XDECREF(pGridName);

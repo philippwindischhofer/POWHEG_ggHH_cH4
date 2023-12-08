@@ -33,6 +33,7 @@ subroutine initgrids(cHHH,ct,ctt,cg,cgg)
        implicit none
      end subroutine python_printinfo
 
+     ! DEPRECATED
      subroutine combine_grids(grid_temp, cHHH, ct, ctt, cg, cgg) bind(c)
        use, intrinsic :: iso_c_binding
        implicit none
@@ -62,7 +63,11 @@ subroutine initgrids(cHHH,ct,ctt,cg,cgg)
            "Virt_full_", cHHH, "_", ct,"_", ctt, "_", cg, "_", cgg, ".grid"
     c_gridname = TRIM(gridname)//C_NULL_CHAR
 
-    call combine_grids(c_gridname,cHHH,ct,ctt,cg,cgg)
+    ! the grids are combined externally by running the run.sh script
+    ! (with e.g. ./run.sh warmup or the full-fledged run mode = 3)
+    ! to avoid deadlocks
+    !
+    ! call combine_grids(c_gridname,cHHH,ct,ctt,cg,cgg)
   else
     c_gridname = TRIM("grid.in")//C_NULL_CHAR
   endif

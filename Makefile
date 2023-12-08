@@ -106,8 +106,14 @@ NINJAFLAGS=-DHAVE_CONFIG_H -I./GoSamlib  -O2
 NINJAFLAGSQP=-DHAVE_CONFIG_H -I./GoSamlib -I./Gosamlib/quadsources -O2
 
 # VirtualGrids
-LIBS+= $(shell python3-config --ldflags)
 CCFLAGS+=$(shell python3-config --cflags)
+# for python > 3.8 to link library correctly
+PYTHON_OK=$(shell python3 -c 'import sys; assert sys.version_info >= (3,8)' 2>&1 /dev/null)
+ifeq ("$(PYTHON_OK)","")
+LIBS+=$(shell python3-config --ldflags --embed)
+else
+LIBS+=$(shell python3-config --ldflags)
+endif
 
 pwhg_cpHTO_reweight.o: pwhg_cpHTO_reweight.f $(INCLUDE)
 	$(FF) -c $(MOD) -o $(OBJDIR)/$@ $<
