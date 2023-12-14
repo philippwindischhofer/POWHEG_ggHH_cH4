@@ -28,6 +28,10 @@
 \newcommand\pthh{\ensuremath{p_{T}^{\mathrm{hh}}}\xspace}
 \newcommand\pt{p_{\sss\rm T}}
 \newcommand\LambdaQCD{\Lambda_{\scriptscriptstyle QCD}}
+\renewenvironment{description}[1][0pt]
+  {\list{}{\labelwidth=0pt \leftmargin=#1
+   \let\makelabel\descriptionlabel}}
+  {\endlist}
 %%%%%%%%%% End TeXmacs macros
 
 
@@ -113,8 +117,9 @@ A detailed description of the different approximations can be found in Ref.~\cit
 
 This allows to run the code in four different modes, either by
 changing the flag {\tt mtdep} in the \POWHEGBOX{} run card {\tt powheg.input-save}, or by using the script {\tt run.sh [mode]}.
-The possible choices and the corresponding calculations are the following:
-\begin{description}
+
+The possible choices and the corresponding calculations are the following four modes:
+\begin{description}[.3in]
  \item[{\tt mtdep=0}:]{computation using basic HEFT. All amplitudes
    are computed in the $m_t\to\infty$ limit.\textbf{This mode can only be run for variations of 
    the trilinear coupling $c_{hhh}$.}}
@@ -140,10 +145,10 @@ SM case, as well as for variations of the trilinear Higgs coupling $c_{hhh}$, or
 The {\tt run.sh} script in the {\tt testrun} folder allows to perform 
 the runs of the different stages of \POWHEG{} easily.
 By typing {\tt ./run.sh} without any argument a menu with the
-4 {\tt mtdep} running modes described above is shown. 
+4 {\tt mtdep} running modes (as well as the warmup stage to {\tt mtdep=3}) described above is shown. 
 For all {\tt mtdep} running modes the code goes through all
 the various steps (parallel stages) of the calculation: 
-\begin{description}
+\begin{description}[.3in]
  \item[{\tt parallelstage=1}:]
 generation of the importance sampling grid for the Monte Carlo integration; 
  \item[{\tt parallelstage=2}:] calculation of the integral for the inclusive cross section and an upper bounding function of the integrand;
@@ -166,20 +171,25 @@ The grid is generated using python code and is directly interfaced to the
 \POWHEGBOX{} fortran code via the Python/C API. In order for the grid to be found by the code, the
 files ({\tt events.cdf, createdgrid.py, Virt\_full\_*E*.grid}) from the
 folder {\tt Virtual} need to be copied into the local folder where the
-code is run. Instead of copying the files, we suggest to create a
-symbolic link to the needed files. Assuming the code is run from a
-subfolder (e.g. {\tt testrun}) of the process folder, the link can be created in this subfolder as follows:
-\begin{description}
-\item{\tt ln -s ../Virtual/events.cdf events.cdf}
-\item{\tt ln -s ../Virtual/creategrid.py creategrid.py}
-\item{\tt for grid in ../Virtual/Virt\_full\_*E*.grid; do ln -s \$grid; done}
-\end{description}
-Once the links are in place, the code can be run with {\tt mtdep=3} as
-usual. To ensure that the linked files are found, we recommend to add the run subfolder to {\tt PYTHONPATH}. 
-The python code {\tt creategrid.py} will then combine the virtual grids generated with different values of the Higgs couplings
-to produce a new file {\tt Virt\_full*E*.grid} corresponding to the values of the couplings chosen in the {\tt powheg.input} file.
+code is run. The various grids have to be combined into a single one, valid
+for the specific values of the anomalous couplings as defined in the input card.
 
-The python code for the grid is written in python 3 and relies on the {\tt numpy} and {\tt sympy} packages, which 
+Assuming the code is run from a
+subfolder (e.g. {\tt testrun}) of the process folder, both steps (symbolic linking and combination
+of the grids) are performed by executing
+
+\begin{description}[.3in]
+\item{\tt ./run.sh warmup}
+\end{description}
+%
+directly in the subfolder. If the user executes {\tt ./run.sh 3}, the warm-up stage
+is called automatically.
+
+To ensure that the linked files are found, we recommend to add the run subfolder to {\tt PYTHONPATH}. This is also done automatically if the {\tt run.sh} script is used.
+The python code {\tt creategrid.py} will then combine the virtual grids generated with different values of the Higgs couplings
+to produce a new file {\tt Virt\_full*E*.grid} corresponding to the values of the couplings chosen in the {\tt powheg.input-save} file.
+
+The python code for the grid is written in python 3 and relies on the {\tt numpy}, {\tt scipy} and {\tt sympy} packages, which 
 the user should install separately. When building the {\tt ggHH} process the Makefile will find the embedded python 3 library
 via a call to {\tt python3-config}, which the user should ensure is configured correctly and points to the correct library.
 Note that on some systems the Python/C API does not search for packages (such as {\tt numpy} and {\tt sympy}) in the same 
@@ -207,7 +217,7 @@ Otherwise the two-loop virtual part would contain a different top or Higgs mass 
 
 The value of the Higgs couplings as defined in the context of the Electroweak Chiral Lagrangian (see~\cite{Buchalla:2018yce} and references within), can be varied directly in the {\tt powheg.input} card. These are, with their SM values as default:
 
-\begin{description}
+\begin{description}[.3in]
 \item[{\tt chhh=1.0}:] { the ratio of the Higgs trilinear coupling to its SM value,}
 \item[{\tt ct=1.0}:] { the ratio of the Higgs Yukawa coupling to the top quark to its SM value,}
 \item[{\tt ctt=0.0}:] { the effective coupling of two Higgs bosons to a top quark pair,}
@@ -242,7 +252,7 @@ Below is a list of potential issues:
 
 \begin{itemize}
 \item With {\tt mtdep=3}, the powheg *.log files contain the string ``grid not found": make sure your run folder contains the following files 
-(or symbolic links to these files located in the folder `Virtual'): {\tt events.cdf, creategrid.py} and the grid files  {\tt Virt\_full\_*E*.grid}.
+(or symbolic links to these files located in the folder `Virtual'): {\tt events.cdf, creategrid.py} and the grid files  {\tt Virt\_full\_*E*.grid}. Also ensure that the grid corresponding to the values entered in the input card has been generated, by running {\tt ./run.sh warmup}.
 \item The distributions contain spikes: make sure the flags {\tt check\_bad\_st1} and {\tt check\_bad\_st2} (present in \POWHEG{} svn revisions $\geq 3600$) are set to 1. These flags discard outliers in the xgrid files. If you still find outliers with these flags switched on, the ``bad" runs should be removed 
 (manually, or using the script {\tt automated\_removal.py} present in the subfolder {\tt shell}).
 \item Problems related to the {\tt gcc 6.3.0} compiler have been reported. They should not occur when using a more recent {\tt gcc} compiler.

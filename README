@@ -1,28 +1,41 @@
+#-------------------------------------------------------------------------------
+
 Detailed instructions can be found in Docs/manual-BOX-HH.pdf
 
+#-------------------------------------------------------------------------------
 Quickstart:
+#-------------------------------------------------------------------------------
 
-1) type 'make' in the ggHH process folder
-2) go to the folder 'testrun'
-3) edit the input file powheg.input-save
-4) type './run.sh 3'
-(where the argument '3' is the value for the flag 'mtdep'. mtdep=3 means NLO with full top quark mass
-dependence.
+  1) type 'make' in the ggHH process folder
+  2) go to the folder 'testrun'
+  3) edit the input file powheg.input-save
+  4) type './run.sh 3'
+     (where the argument '3' is the value for the flag 'mtdep').
+     mtdep=3 means NLO with full top quark mass dependence.
 
-If mtdep=3 is used, the grid files (or a symbolic link to them)
-have to be present in the folder from which the program is run (e.g. 'testrun').
-If the script run.sh is used, the symbolic links will be produced automatically.
-If the script run.sh is not used, the following commands have to be given (once):
+#-------------------------------------------------------------------------------
 
- ln -s ../Virtual/events.cdf events.cdf
- ln -s ../Virtual/creategrid.py creategrid.py
- for grid in ../Virtual/Virt_full_*E*.grid; do ln -s $grid; done
+If mtdep=3 is used, the grid files (or a symbolic link to them) have to be
+present in the folder from which the program is run (e.g. 'testrun'). The grids
+are then combined into one, for the specific values of the anomalous couplings
+as defined in the POWHEG runcard.
 
-Note that the script ./run.sh will perform POWHEG's parallelstages 1-4 sequentially. 
-The time taken for all 3 steps may exceed wall clock limits on a cluster. 
-In this case it is advisable to submit jobs for each parallelstage separately.
-Running only parallelstage 1 for example can be easily achieved by putting a command 'exit' into run.sh
-before the line 'parstage=2'.
-Then parallelstage 2 can be submitted; it will use the POWHEG files produced in parallelstage 1.
-Similarly for stages 3 (upper bounding functions) and 4 (generation of the LHE files).
+To achieve this the user needs to run
 
+  ./run.sh warmup
+
+once in the run folder (e.g. 'testrun'). This step is necessary whether the user
+uses the run.sh script to perform the actual runs, or submits jobs on their own.
+
+If the user executes ./run.sh 3, the warmup phase is called automatically.
+
+#-------------------------------------------------------------------------------
+
+Note that the script ./run.sh will perform POWHEG's parallelstages 1-4
+sequentially.  The time taken for all 4 steps may exceed wall clock limits on a
+cluster.  In this case it is advisable to submit jobs for each parallelstage
+separately.  Running only parallelstage 1 for example can be easily achieved by
+putting a command 'exit' into run.sh before the line 'parstage=2'. Then
+parallelstage 2 can be submitted; it will use the POWHEG files produced in
+parallelstage 1.  Similarly for stages 3 (upper bounding functions) and 4
+(generation of the LHE files).
