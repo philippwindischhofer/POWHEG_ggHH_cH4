@@ -41,38 +41,14 @@ c     the code and we change often from one process to the other
          ini_test = .false.
       endif
 
-c******************************************************
-c     Choose the type of computation:
-c     mtdep = 0: heavy top limit (htl)
-c     mtdep = 1: Born improved heavy top limit (full theory born)
-c     mtdep = 2: full theory approx (with htl virtual)
-c     mtdep = 3: full theory
-c     mtdep = 4,5: checks
-c******************************************************
-      mtdep=int(powheginput("#mtdep"))
+      mtdep=3
 
       write(*,*) "***********************************"
-      if (mtdep.eq.0) then
-         write(*,*) "**     Running in HEFT mode      **"
-      else if (mtdep.eq.1) then
-         write(*,*) "** Running in Born improved mode **"
-      else if (mtdep.eq.2) then
-         write(*,*) "**   Running in FTapprox mode    **"
-      else if (mtdep.eq.3) then
+      if (mtdep.eq.3) then
          write(*,*) "**  Running in full theory mode  **"
-      else if (mtdep.eq.4) then
-         write(*,*) "**   Running in test mode (!!)   **"
-      else if (mtdep.eq.5) then
-         write(*,*) "** Running in test Born grid mode **"
-         if (int(powheginput("#bornonly")).ne.1) then
-            write(*,*) "** (Running mode only for born,   **"
-            write(*,*) "**  --> setting 'bornonly' to 1)  **"
-            flg_bornonly=.true.
-         endif
       else
-         write(*,*) "**  Running mode not recognized  **"
-         write(*,*) "**  ... switching to HEFT mode   **"
-         mtdep = 0
+         write(*,*) "**  Running mode not supported!  **"
+         stop
       endif
       write(*,*) "***********************************"
 

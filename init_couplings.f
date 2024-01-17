@@ -48,7 +48,7 @@ C--
       ph_mdlcgghh = powheginput("#cgghh")
       if (ph_mdlcgghh.le.-99d0) ph_mdlcgghh = 0.0d0
 
-      mtdep = powheginput("#mtdep")
+      mtdep = 3
 
 C--   No HTL reals or virtuals for non-SM values of couplings
 C--   (except for chhh)

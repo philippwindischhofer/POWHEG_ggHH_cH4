@@ -1,13 +1,7 @@
 ! ggHH production parameters:
-mtdep 3              ! 0: Higgs effective field theory (HEFT)
-!                      1: Born improved HEFT
-!                      2: approximated full theory (FTapprox)
-!                      3: full theory
-
 hmass 125            ! Higgs boson mass
 topmass 173          ! top quark mass (THIS VALUE IS HARD CODED IN THE VIRTUAL
-                     ! MATRIX ELEMENT AND FOR CONSISTENCY HAS NOT TO BE CHANGED WHEN
-                     ! RUNNING FULL THEORY PREDICTIONS - i.e. mtdep=3)
+                     ! MATRIX ELEMENT AND FOR CONSISTENCY HAS NOT TO BE CHANGED)
 hdecaymode -1        ! PDG code for Higgs boson decay products (it affects only the SMC)
 !                      allowed values are:  
 !                      0 all decay channels open
