@@ -41,7 +41,7 @@ function warmup {
 
     # get formatted coupling values
     chhh=$(awk 'sub(/^chhh/,""){printf "%+.4E", $1}' powheg.input-save)
-    ct=$(awk 'sub(/^ct /,""){printf "%+.4E", $1}' powheg.input-save)
+    ct=$(printf "%+.4E" 1.0)
     ctt=$(awk 'sub(/^ctt/,""){printf "%+.4E", $1}' powheg.input-save)
     cg=$(awk 'sub(/^cggh /,""){printf "%+.4E", $1}' powheg.input-save)
     cgg=$(awk 'sub(/^cgghh/,""){printf "%+.4E", $1}' powheg.input-save)
