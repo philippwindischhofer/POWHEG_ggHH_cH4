@@ -55,13 +55,13 @@ nubound 15000        ! number of bbarra calls to setup norm of upper bounding fu
 ! OPTIONAL PARAMETERS
 
 ! scale settings:
-#fixedscale   1      ! (dafault 0) fixed scale uses muren = mufac = 2*m_H
+fixedscale    0      ! (dafault 0) fixed scale uses muren = mufac = 2*m_H
 facscfact   1d0      ! (default 1d0) fac scale factor: mufact = muref * facscfact, muref=mHH/2
 renscfact   1d0      ! (default 1d0) ren scale factor: muren  = muref * renscfact, muref=mHH/2
 alphas_from_pdf 1    ! uses alpha_s from LHAPDF instead of POWHEG function
 !
 ! Born, plots and powheg strategy:
-#bornonly         1  ! (default 0) if 1 do Born only
+bornonly          0  ! (default 0) if 1 do Born only
 testplots         1  ! (default 0, do not) do NLO and PWHG distributions
 fastbtlbound      1  ! fast evaluation of Btilde upper bounds
 storemintupb      1  ! store function calls in binary file for more precise generation
