@@ -39,14 +39,10 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
 
 C--   Some parameters cannot be moved away from their SM value
       ph_mdlct = 1.0d0
+      ph_mdlcthh = 0.0d0
+      ph_mdlcgg = 0.0d0
+      ph_mdlcgghh = 0.0d0
 C--
-
-      ph_mdlcthh = powheginput("#ctt")
-      if (ph_mdlcthh.le.-99d0) ph_mdlcthh = 0.0d0
-      ph_mdlcgg = powheginput("#cggh")
-      if (ph_mdlcgg.le.-99d0) ph_mdlcgg = 0.0d0
-      ph_mdlcgghh = powheginput("#cgghh")
-      if (ph_mdlcgghh.le.-99d0) ph_mdlcgghh = 0.0d0
 
       mtdep = 3
 

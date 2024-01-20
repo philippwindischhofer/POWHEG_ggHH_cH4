@@ -101,9 +101,9 @@ c     index of the first LIGHT coloured parton in the final state
       if (mtdep.eq.3.or.mtdep.eq.5) then
          cHHH = powheginput('#chhh')
          ct = 1.0d0
-         ctt = powheginput('#ctt')
-         cg = powheginput('#cggh')
-         cgg = powheginput('#cgghh')
+         ctt = 0.0d0
+         cg = 0.0d0
+         cgg = 0.0d0
          if( flg_bornonly .or. .not.btildevirton )then
             write(*,*)'>>> VIRTUAL not needed!'
             write(*,*)'    not loading virt-grids...'

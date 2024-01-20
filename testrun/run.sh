@@ -37,9 +37,9 @@ function warmup {
     # get formatted coupling values
     chhh=$(awk 'sub(/^chhh/,""){printf "%+.4E", $1}' powheg.input-save)
     ct=$(printf "%+.4E" 1.0)
-    ctt=$(awk 'sub(/^ctt/,""){printf "%+.4E", $1}' powheg.input-save)
-    cg=$(awk 'sub(/^cggh /,""){printf "%+.4E", $1}' powheg.input-save)
-    cgg=$(awk 'sub(/^cgghh/,""){printf "%+.4E", $1}' powheg.input-save)
+    ctt=$(printf "%+.4E" 0.0)
+    cg=$(printf "%+.4E" 0.0)
+    cgg=$(printf "%+.4E" 0.0)
 
     gridtemp="Virt_full_${chhh}_${ct}_${ctt}_${cg}_${cgg}.grid"
 
