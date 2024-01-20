@@ -1,17 +1,11 @@
-#-------------------------------------------------------------------------------
-
-Detailed instructions can be found in Docs/XYZ (put tex code of addendum here?)
-
-#-------------------------------------------------------------------------------
-Quickstart:
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
+# Quickstart:
+# -------------------------------------------------------------------------------
 
   1) type 'make' in the ggHH process folder
   2) go to the folder 'testrun'
   3) edit the input file powheg.input-save
   4) type './run.sh all'
-
-#-------------------------------------------------------------------------------
 
 The above will automatically prepare the grid files in the folder from which the
 program is run (e.g. 'testrun'). The grids are then combined into one, for the 
@@ -28,8 +22,6 @@ parallelstage 2 can be submitted; it will use the POWHEG files produced in
 parallelstage 1.  Similarly for stages 3 (upper bounding functions) and 4
 (generation of the LHE files).
 
-#-------------------------------------------------------------------------------
-
 To just generate the grids (but do not run parallelstages 1-4) it is sufficient
 to call
 
@@ -41,5 +33,21 @@ The available options are also displayed with
 
   ./run.sh help
 
-#-------------------------------------------------------------------------------
+# -------------------------------------------------------------------------------
+# Further information
+# -------------------------------------------------------------------------------
 
+This model is heavily based on svn rev 4040 of `User-Processes-V2/ggHH` and differs
+from the latter in that the quartic Higgs self-coupling is introduced as a parameter.
+For more information about the original `ggHH` model, please consult Ref. [3] and
+its software documentation in `User-Processes-V2/ggHH/Docs`.
+
+# -------------------------------------------------------------------------------
+# How to cite
+# -------------------------------------------------------------------------------
+
+If you use this model in your work, please cite the following:
+
+[1] W. Bizoń, U. Haisch, L Rottoli, ``Constraints on the quartic Higgs self-coupling from double-Higgs production at future hadron colliders'', J. High Energ. Phys. 2019, 267 (2019), https://doi.org/10.1007/JHEP10(2019)267
+[2] Z. Gillis, B. Moser, L. Rottoli, P. Windischhofer, ``Addendum to: Constraints on the quartic Higgs self-coupling from double-Higgs production at future hadron colliders'', ADD FULL REFERENCE HERE
+[3] G. Heinrich, S. P. Jones, M. Kerner, G. Luisoni, L. Scyboz, ``Probing the trilinear Higgs boson coupling in di-Higgs production at NLO QCD including parton shower effects'', J. High Energ. Phys. 2019, 66 (2019), https://doi.org/10.1007/JHEP06(2019)066
