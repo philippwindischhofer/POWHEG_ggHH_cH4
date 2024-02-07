@@ -6,16 +6,13 @@ ncores=8
 # number of iterations for the calculation of xgrid at parallelstage 1. It is the old ncall1
 nxgriditeration=3
 
-if [ "$1" = "help" ] || [ "$1" = "" ]
+if [ "$1" = "help" ]
 then
     echo "******************************************************"
     echo "-- Menu for running powheg --                         "
     echo "Possible running options:                             "
-    echo "./run warmup : run warmup phase (generates links/grid)"
-    echo "./run 0      : run in Higgs Effective Theory (HEFT)   "
-    echo "./run 1      : run in Born improved HEFT              "
-    echo "./run 2      : run in approx. full theory (FTapp)     "
-    echo "./run 3      : run in full theory (grids for virtual) "
+    echo "./run warmup : just run warmup phase (generates links/grid)"
+    echo "./run all    : run everything                         "
     echo "*************************************************"
     exit
 else
@@ -24,8 +21,6 @@ fi
 
 function warmup {
     export PYTHONPATH=$PWD:$PYTHONPATH
-    # creates symbolic links to the files that are needed
-    # for mtdep = 3
     if [ ! -f events.cdf ]
     then
         ln -s ../Virtual/events.cdf events.cdf
@@ -41,10 +36,10 @@ function warmup {
 
     # get formatted coupling values
     chhh=$(awk 'sub(/^chhh/,""){printf "%+.4E", $1}' powheg.input-save)
-    ct=$(awk 'sub(/^ct /,""){printf "%+.4E", $1}' powheg.input-save)
-    ctt=$(awk 'sub(/^ctt/,""){printf "%+.4E", $1}' powheg.input-save)
-    cg=$(awk 'sub(/^cggh /,""){printf "%+.4E", $1}' powheg.input-save)
-    cgg=$(awk 'sub(/^cgghh/,""){printf "%+.4E", $1}' powheg.input-save)
+    ct=$(printf "%+.4E" 1.0)
+    ctt=$(printf "%+.4E" 0.0)
+    cg=$(printf "%+.4E" 0.0)
+    cgg=$(printf "%+.4E" 0.0)
 
     gridtemp="Virt_full_${chhh}_${ct}_${ctt}_${cg}_${cgg}.grid"
 
@@ -64,7 +59,7 @@ prg=../pwhg_main
 
 begin=$(date +"%s")
 
-if [ "$mode" = "warmup" ] || [ "$mode" = "3" ]
+if [ "$mode" = "warmup" ] || [ "$mode" = "all" ]
 then
     echo "***********************************************"
     echo " stage warmup"
@@ -86,7 +81,7 @@ echo "***********************************************"
 
 for xgrid in $(seq 1 $nxgriditeration)
 do
-    cat powheg.input-save | sed "s/mtdep.*/mtdep $mode/ ; s/parallelstage.*/parallelstage $parstage/ ; s/xgriditeration.*/xgriditeration $xgrid/">powheg.input
+    cat powheg.input-save | sed "s/parallelstage.*/parallelstage $parstage/ ; s/xgriditeration.*/xgriditeration $xgrid/">powheg.input
     cp powheg.input powheg.input-$parstage-$xgrid
     logfile=run-$parstage-$xgrid
     runthem
@@ -100,7 +95,7 @@ echo "***********************************************"
 echo " stage " $parstage
 echo "***********************************************"
 
-cat powheg.input-save | sed "s/mtdep.*/mtdep $mode/ ; s/parallelstage.*/parallelstage $parstage/ ; s/xgriditeration.*/xgriditeration $xgrid/">powheg.input
+cat powheg.input-save | sed "s/parallelstage.*/parallelstage $parstage/ ; s/xgriditeration.*/xgriditeration $xgrid/">powheg.input
 cp powheg.input powheg.input-$parstage
 logfile=run-$parstage
 runthem
@@ -117,7 +112,7 @@ echo "***********************************************"
 echo " stage " $parstage
 echo "***********************************************"
 
-cat powheg.input-save | sed "s/mtdep.*/mtdep $mode/ ; s/parallelstage.*/parallelstage $parstage/ ; s/xgriditeration.*/xgriditeration $xgrid/">powheg.input
+cat powheg.input-save | sed "s/parallelstage.*/parallelstage $parstage/ ; s/xgriditeration.*/xgriditeration $xgrid/">powheg.input
 cp powheg.input powheg.input-$parstage
 logfile=run-$parstage
 runthem
@@ -130,7 +125,7 @@ echo "***********************************************"
 echo " stage " $parstage
 echo "***********************************************"
 
-cat powheg.input-save | sed "s/mtdep.*/mtdep $mode/ ; s/parallelstage.*/parallelstage $parstage/ ; s/xgriditeration.*/xgriditeration $xgrid/ ; s/testplots.*/#testplots 1/">powheg.input
+cat powheg.input-save | sed "s/parallelstage.*/parallelstage $parstage/ ; s/xgriditeration.*/xgriditeration $xgrid/ ; s/testplots.*/#testplots 1/">powheg.input
 cp powheg.input powheg.input-$parstage
 logfile=run-$parstage
 runthem

@@ -36,16 +36,15 @@ cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc
       if (ph_mdlchhh.le.-99d0) ph_mdlchhh = 1.0d0
       ph_mdlch4 = powheginput("#ch4")
       if (ph_mdlch4.le.-9999d0) ph_mdlch4 = 0.0d0
-      ph_mdlct = powheginput("#ct")
-      if (ph_mdlct.le.-99d0) ph_mdlct = 1.0d0
-      ph_mdlcthh = powheginput("#ctt")
-      if (ph_mdlcthh.le.-99d0) ph_mdlcthh = 0.0d0
-      ph_mdlcgg = powheginput("#cggh")
-      if (ph_mdlcgg.le.-99d0) ph_mdlcgg = 0.0d0
-      ph_mdlcgghh = powheginput("#cgghh")
-      if (ph_mdlcgghh.le.-99d0) ph_mdlcgghh = 0.0d0
 
-      mtdep = powheginput("#mtdep")
+C--   Some parameters cannot be moved away from their SM value
+      ph_mdlct = 1.0d0
+      ph_mdlcthh = 0.0d0
+      ph_mdlcgg = 0.0d0
+      ph_mdlcgghh = 0.0d0
+C--
+
+      mtdep = 3
 
 C--   No HTL reals or virtuals for non-SM values of couplings
 C--   (except for chhh)
